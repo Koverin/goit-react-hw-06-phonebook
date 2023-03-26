@@ -1,41 +1,32 @@
-import { useState } from 'react';
+import shortid from 'shortid';
+import { useDispatch } from 'react-redux';
+import { addContact } from '../../redux/contactSlice';
 import { FormBox, Input } from './Form.styled';
 
-export function Form({ onSubmit }) {
-  const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
+export function Form() {
+  const dispatch = useDispatch();
 
-  const inputChange = evt => {
-    const { name, value } = evt.currentTarget;
-
-    switch (name) {
-      case 'name':
-        setName(value);
-        break;
-      case 'number':
-        setNumber(value);
-        break;
-      default:
-        return;
-    }
-  };
-
-  const handleSubmit = evt => {
+  const inputSubmit = evt => {
     evt.preventDefault();
-    onSubmit(name, number);
-    setName('');
-    setNumber('');
+
+    const newContact = {
+      id: shortid.generate(),
+      name: evt.target.elements.name.value,
+      number: evt.target.elements.number.value,
+    };
+
+    dispatch(addContact(newContact));
+
+    evt.target.reset();
   };
 
   return (
-    <FormBox onSubmit={handleSubmit}>
+    <FormBox onSubmit={inputSubmit}>
       <label>
         Name
         <Input
           type="text"
           name="name"
-          value={name}
-          onChange={inputChange}
           pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
           title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
           required
@@ -47,8 +38,6 @@ export function Form({ onSubmit }) {
         <Input
           type="tel"
           name="number"
-          value={number}
-          onChange={inputChange}
           pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
           title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
           required
